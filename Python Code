@@ -1,0 +1,74 @@
+from tkinter import *
+from tkinter import messagebox
+import matplotlib.pyplot as plt
+from reportlab.pdfgen import canvas
+from PIL import Image
+
+def generate_chart():
+    name = ent_name.get().strip()
+    phy = ent_phy.get().strip()
+    che = ent_che.get().strip()
+    math = ent_math.get().strip()
+
+    if not (name and phy.isdigit() and che.isdigit() and math.isdigit()):
+        messagebox.showerror("Input Error", "Please enter valid inputs.")
+        return
+
+    marks = [int(phy), int(che), int(math)]
+    subjects = ["Physics", "Chemistry", "Maths"]
+
+    plt.figure(figsize=(8, 5))
+    plt.bar(subjects, marks, color=['blue', 'green', 'orange'])
+    plt.title(f"Marks of {name}")
+    plt.xlabel("Subjects")
+    plt.ylabel("Marks")
+
+    chart_filename = f"{name}_bar_chart.png"
+    plt.savefig(chart_filename)
+    plt.close()
+
+    pdf_filename = f"{name}_Marks_Chart.pdf"
+    c = canvas.Canvas(pdf_filename)
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(200, 780, f"Student Bar Chart for {name}")
+
+    try:
+        img = Image.open(chart_filename)
+        img_width, img_height = img.size
+        aspect_ratio = img_height / img_width
+        new_width = 400
+        new_height = int(new_width * aspect_ratio)
+        c.drawImage(chart_filename, 100, 400, width=new_width, height=new_height)
+    except Exception as e:
+        messagebox.showerror("Image Error", f"Failed to load image: {e}")
+
+    c.save()
+
+    messagebox.showinfo("Success", f"Bar chart saved as {pdf_filename}")
+
+root = Tk()
+root.title("Student Bar Chart")
+root.geometry("800x700+300+50")
+f = ("arial", 20, "bold")
+
+lab_name = Label(root, text="Enter Student Name", font=f)
+ent_name = Entry(root, font=f)
+lab_phy = Label(root, text="Enter Physics Marks", font=f)
+ent_phy = Entry(root, font=f)
+lab_che = Label(root, text="Enter Chemistry Marks", font=f)
+ent_che = Entry(root, font=f)
+lab_math = Label(root, text="Enter Maths Marks", font=f)
+ent_math = Entry(root, font=f)
+btn_generate = Button(root, text="Generate", font=f, command=generate_chart)
+
+lab_name.pack(pady=10)
+ent_name.pack(pady=10)
+lab_phy.pack(pady=10)
+ent_phy.pack(pady=10)
+lab_che.pack(pady=10)
+ent_che.pack(pady=10)
+lab_math.pack(pady=10)
+ent_math.pack(pady=10)
+btn_generate.pack(pady=10)
+
+root.mainloop()
